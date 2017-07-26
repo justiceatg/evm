@@ -630,7 +630,7 @@ public class ApiApplication extends Application {
             }
         });
 
-        router.attach("/addElection/{session}/{constituency}/{startDate}/{endDate}/{electionType}/{generalElection}", new Restlet() {
+        router.attach("/addElection/{session}/{constituency}/{startDate}/{endDate}/{electionType}", new Restlet() {
 
             @Override
             public void handle(Request request, Response response) {
@@ -641,20 +641,17 @@ public class ApiApplication extends Application {
                     Date endDate = dateFormat.parse(RestletUtil.getParameter(request, "endDate"));
                     String cT = RestletUtil.getParameter(request, "electionType");
                     ElectionType electionType = Enum.valueOf(ElectionType.class, cT);
-                    Long generalElectionId = Long.parseLong(RestletUtil.getParameter(request, "generalElection"));
 
                     LoginSession loginSession = Cache.getInstance().getSession(session);
                     if (loginSession != null && loginSession.getUser().getUserRole() == UserRole.ADMINISTRATOR) {
                         try {
                             Constituency constituency = JPAFactory.getInstance().getConstituencyJpaController().findConstituency(constituencyId);
-                            GeneralElection generalElection = JPAFactory.getInstance().getGeneralElectionJpaController().findGeneralElection(generalElectionId);
 
                             Election election = new Election();
                             election.setConstituency(constituency);
                             election.setStartDate(startDate);
                             election.setEndDate(endDate);
                             election.setElectionType(electionType);
-                            election.setGeneralElection(generalElection);
                             JPAFactory.getInstance().getElectionJpaController().create(election);
                             response.setEntity(new JacksonRepresentation(new ElectionData(election)));
                             response.setStatus(Status.SUCCESS_OK);
@@ -1102,7 +1099,7 @@ public class ApiApplication extends Application {
             }
         });
 
-        router.attach("/addVoter/{session}/{fullnames}/{nationalId}", new Restlet() {
+        router.attach("/addVoter/{session}/{fullnames}/{nationalId}/{election}", new Restlet() {
 
             @Override
             public void handle(Request request, Response response) {
@@ -1111,14 +1108,25 @@ public class ApiApplication extends Application {
                     String session = RestletUtil.getParameter(request, "session");
                     String fullnames = RestletUtil.getParameter(request, "fullnames");
                     String nationalId = RestletUtil.getParameter(request, "nationalId");
+                    Long electionId = Long.parseLong(RestletUtil.getParameter(request, "election"));
 
                     LoginSession loginSession = Cache.getInstance().getSession(session);
                     if (loginSession != null && loginSession.getUser().getUserRole() == UserRole.ADMINISTRATOR) {
                         try {
+                            Election election = JPAFactory.getInstance().getElectionJpaController().findElection(electionId);
+
                             Voter voter = new Voter();
                             voter.setFullnames(fullnames);
                             voter.setNationalId(nationalId);
-                            JPAFactory.getInstance().getVoterJpaController().create(voter);
+                            Long addedVoterId = JPAFactory.getInstance().getVoterJpaController().createAndReturnId(voter);
+
+                            Voter addedVoter = JPAFactory.getInstance().getVoterJpaController().findVoter(addedVoterId);
+
+                            VoterRegistration registration = new VoterRegistration();
+                            registration.setVoter(addedVoter);
+                            registration.setElection(election);
+                            JPAFactory.getInstance().getVoterRegistrationJpaController().create(registration);
+
                             response.setEntity(new JacksonRepresentation(new VoterData(voter)));
                             response.setStatus(Status.SUCCESS_OK);
                         } catch (Exception e) {
@@ -1338,62 +1346,62 @@ public class ApiApplication extends Application {
             }
         });
 
-//        router.attach("/getAllVoterRegistrations/{session}/{max}/{index}", new Restlet() {
-//
-//            @Override
-//            public void handle(Request request, Response response) {
-//                try {
-//                    String session = RestletUtil.getParameter(request, "session");
-//
-//                    LoginSession loginSession = Cache.getInstance().getSession(session);
-//                    if (loginSession != null && loginSession.getUser().getUserRole() == UserRole.ADMINISTRATOR) {
-//                        try {
-//                            int index = Integer.parseInt(RestletUtil.getParameter(request, "index"));
-//                            int max = Integer.parseInt(RestletUtil.getParameter(request, "max"));
-//
-//                            List<VoterRegistration> registrations = JPAFactory.getInstance().getVoterRegistrationJpaController().findVoterEntities(max, index);
-//
-//                            VoterData[] data = new VoterData[registrations.size()];
-//                            int k = 0;
-//                            for (Voter v : registrations) {
-//                                data[k] = new VoterData(v);
-//                                k++;
-//                            }
-//                            response.setEntity(new JacksonRepresentation(data));
-//                            response.setStatus(Status.SUCCESS_OK);
-//                        } catch (UnsupportedEncodingException | NumberFormatException e) {
-//                            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-//                        }
-//                    }
-//                } catch (UnsupportedEncodingException ex) {
-//                    Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//            }
-//        });
-//
-//        router.attach("/getVoter/{session}/{voter}", new Restlet() {
-//
-//            @Override
-//            public void handle(Request request, Response response) {
-//                try {
-//                    String session = RestletUtil.getParameter(request, "session");
-//                    Long voterId = Long.parseLong(RestletUtil.getParameter(request, "voter"));
-//
-//                    LoginSession loginSession = Cache.getInstance().getSession(session);
-//                    if (loginSession != null && loginSession.getUser().getUserRole() == UserRole.ADMINISTRATOR) {
-//                        try {
-//                            Voter voter = JPAFactory.getInstance().getVoterJpaController().findVoter(voterId);
-//                            response.setEntity(new JacksonRepresentation(new VoterData(voter)));
-//                            response.setStatus(Status.SUCCESS_OK);
-//                        } catch (Exception e) {
-//                            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-//                        }
-//                    }
-//                } catch (UnsupportedEncodingException ex) {
-//                    Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//            }
-//        });
+        router.attach("/getAllVoterRegistrations/{session}/{max}/{index}", new Restlet() {
+
+            @Override
+            public void handle(Request request, Response response) {
+                try {
+                    String session = RestletUtil.getParameter(request, "session");
+
+                    LoginSession loginSession = Cache.getInstance().getSession(session);
+                    if (loginSession != null && loginSession.getUser().getUserRole() == UserRole.ADMINISTRATOR) {
+                        try {
+                            int index = Integer.parseInt(RestletUtil.getParameter(request, "index"));
+                            int max = Integer.parseInt(RestletUtil.getParameter(request, "max"));
+
+                            List<VoterRegistration> registrations = JPAFactory.getInstance().getVoterRegistrationJpaController().findVoterRegistrationEntities(max, index);
+
+                            VoterRegistrationData[] data = new VoterRegistrationData[registrations.size()];
+                            int k = 0;
+                            for (VoterRegistration vr : registrations) {
+                                data[k] = new VoterRegistrationData(vr);
+                                k++;
+                            }
+                            response.setEntity(new JacksonRepresentation(data));
+                            response.setStatus(Status.SUCCESS_OK);
+                        } catch (UnsupportedEncodingException | NumberFormatException e) {
+                            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+                        }
+                    }
+                } catch (UnsupportedEncodingException ex) {
+                    Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
+        router.attach("/getVoterRegistration/{session}/{voterRegistration}", new Restlet() {
+
+            @Override
+            public void handle(Request request, Response response) {
+                try {
+                    String session = RestletUtil.getParameter(request, "session");
+                    Long registrationId = Long.parseLong(RestletUtil.getParameter(request, "voterRegistration"));
+
+                    LoginSession loginSession = Cache.getInstance().getSession(session);
+                    if (loginSession != null && loginSession.getUser().getUserRole() == UserRole.ADMINISTRATOR) {
+                        try {
+                            VoterRegistration registration = JPAFactory.getInstance().getVoterRegistrationJpaController().findVoterRegistration(registrationId);
+                            response.setEntity(new JacksonRepresentation(new VoterRegistrationData(registration)));
+                            response.setStatus(Status.SUCCESS_OK);
+                        } catch (Exception e) {
+                            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+                        }
+                    }
+                } catch (UnsupportedEncodingException ex) {
+                    Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
 
         //TODO: add calculate winner logic
 //        router.attach("/calculateWinner/{session}/{election}", new Restlet() {

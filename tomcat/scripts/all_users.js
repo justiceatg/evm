@@ -36,8 +36,8 @@ function loadUsers(max, index) {
                 html += '       <div class="panel panel-filled ">';
                 html += '           <div class="panel-body">';
                 html += '                <div class="btn-group pull-right m-b-md">';
-                html += '                       <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#editModal" onclick="loadSelectedItemInfo(' + unescape(item.username) + ');">Edit</button>';
-                html += '                       <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#deleteModal" onclick="setSelectedItemId(' + unescape(item.username) + ');">Delete</button>';
+//                html += '                       <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#editModal" onclick="loadSelectedItemInfo(' + unescape(item.username) + ');">Edit</button>';
+//                html += '                       <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#deleteModal" onclick="setSelectedItemId(' + unescape(item.username) + ');">Delete</button>';
                 html += '               </div>';
                 html += '               <img alt="image" class="img-rounded image-lg" src="images/branch.png">';
                 html += '                <h5 class="m-b-none"><a href="#"> ' + unescape(item.fullnames) + ' </a></h5>';
@@ -47,7 +47,7 @@ function loadUsers(max, index) {
                 html += '                     <br>';
                 html += '                     Username: ' + unescape(item.username);
                 html += '                     <br>';
-                if (item.email === null) {
+                if (item.emailAddress === null) {
                     html += '                     Email: -';
                 } else {
                     html += '                     Email: ' + unescape(item.emailAddress);
@@ -87,9 +87,11 @@ function loadUsers(max, index) {
 }
 
 function loadSelectedItemInfo(itemId) {
+    console.log(itemId);
     // /getUser/{session}/{username}
     var html = '';
     var url = '/rest/api/getUser/' + sessionId + '/' + itemId;
+    console.log(url);
     $.ajax({
         type: "POST",
         url: url,

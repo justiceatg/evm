@@ -14,12 +14,12 @@ function loadLoggedInUser() {
 
             $('#fullNamesHolderId').html(data.fullnames);
             $('#usernameHolderId').html(data.userRole);
-
+            
             var html = '';
             html += '<img src="images/img.jpg" alt="">';
-            html += '                    ' + data.fullnames;
+            html += '                    ' + data.fullnames; 
             html += ' <span class=" fa fa-angle-down"></span>';
-
+            
             $('#namesHolderId').html(html);
 
             UserRoleLoggedIn = data.userRole;
@@ -30,12 +30,12 @@ function loadLoggedInUser() {
         },
         error: function (data, status) {
 
-
+            
         }
     });
 }
 
-function logOutUser() {
+function logOutUser(){
     var url = '/rest/api/logout/' + sessionId;
     $.ajax({
         type: "POST",
@@ -45,11 +45,11 @@ function logOutUser() {
         contentType: "application/json",
         success: function (data, status) {
             sessionStorage.clear();
-            window.location = "index.html";
+            window.location="index.html";
         },
         error: function (data, status) {
             sessionStorage.clear();
-            window.location = "index.html";
+            window.location="index.html";
         }
     });
 }

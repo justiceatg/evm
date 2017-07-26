@@ -132,5 +132,23 @@ public class VoterJpaController extends BaseJPA {
             em.close();
         }
     }
+    
+    public Long createAndReturnId(Voter voter) {
+        EntityManager em = null;
+        try {
+            em = getEntityManager();
+            em.getTransaction().begin();
+            em.persist(voter);
+            em.flush();
+            long generatedId = voter.getId();
+            em.getTransaction().commit();
+
+            return generatedId;
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+    }
 
 }

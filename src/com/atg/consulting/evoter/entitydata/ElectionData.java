@@ -22,7 +22,6 @@ public class ElectionData {
     private String startDate;
     private String endDate;
     private ElectionType electionType;
-    private GeneralElectionData generalElection;
 
     public ElectionData(Election e) {
         id = e.getId();
@@ -30,7 +29,6 @@ public class ElectionData {
         startDate = dateFormat.format(e.getStartDate());
         endDate = dateFormat.format(e.getEndDate());
         electionType = e.getElectionType();
-        generalElection = new GeneralElectionData(e.getGeneralElection());
     }
 
     public Long getId() {
@@ -71,14 +69,6 @@ public class ElectionData {
 
     public void setElectionType(ElectionType electionType) {
         this.electionType = electionType;
-    }
-
-    public GeneralElectionData getGeneralElection() {
-        return generalElection;
-    }
-
-    public void setGeneralElection(GeneralElectionData generalElection) {
-        this.generalElection = generalElection;
     }
 
 }

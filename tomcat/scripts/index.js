@@ -69,7 +69,7 @@ function sendLogin() {
 
                 if (data.user.userRole == "ADMINISTRATOR") {
 
-                    window.location = "all_branches.html";
+                    window.location = "all_constituencies.html";
                 };
              
             },
