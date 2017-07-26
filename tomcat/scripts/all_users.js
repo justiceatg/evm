@@ -165,17 +165,25 @@ function loadSelectedItemInfo(itemId) {
 }
 
 function updateFunction() {
-    var serviceId = document.getElementById("id").value;
-    var qdcId = document.getElementById("qdcId").value;
-    var name = document.getElementById("name").value;
-    var queueType = document.getElementById("queueType").value;
+    var username = document.getElementById("username").value;
+    var fullNames = document.getElementById("fullNames").value;
+    var address = document.getElementById("address").value;
+    var cellphone = document.getElementById("cellphone").value;
+    var emailAddress = document.getElementById("emailAddress").value;
+    var idType = document.getElementById("idType").value;
+    var postalAddress = document.getElementById("postalAddress").value;
+    var userRole = document.getElementById("userRole").value;
 
-    var encodeServiceId = encodeURIComponent(serviceId);
-    var encodeQdcId = encodeURIComponent(qdcId);
-    var encodeName = encodeURIComponent(name);
-    var encodedQueueType = encodeURIComponent(queueType);
+    var encodeUsername = encodeURIComponent(username);
+    var encodeFullNames = encodeURIComponent(fullNames);
+    var encodeAddress = encodeURIComponent(address);
+    var encodedCellphone = encodeURIComponent(cellphone);
+    var encodeEmailAddress = encodeURIComponent(emailAddress);
+    var encodeIdType = encodeURIComponent(idType);
+    var encodePostalAddress = encodeURIComponent(postalAddress);
+    var encodedUserRole = encodeURIComponent(userRole);
 
-    if (encodeQdcId === '' || encodeName === '' || encodedQueueType === '') {
+    if (encodeFullNames === '' || encodeAddress === '' || encodedCellphone === '') {
 
         toastr["error"]("Make sure you have provided the fields in the form! ", "Error!")
 
@@ -189,12 +197,12 @@ function updateFunction() {
 
     } else
         // /updateUser/{session}/{username}/{fullNames}/{address}/{cellphone}/{emailAddress}/{idType}/{postalAddress}/{userRole}
-        var url = '/rest/api/updateService/'
+        var url = '/rest/api/updateUser/'
                 + sessionId + '/'
-                + encodeServiceId + '/'
-                + encodeQdcId + '/'
-                + encodeName + '/'
-                + encodedQueueType;
+                + encodeUsername + '/'
+                + encodeFullNames + '/'
+                + encodeAddress + '/'
+                + encodedCellphone;
 
     console.log(url);
     $.ajax({
@@ -237,8 +245,8 @@ function setSelectedItemId(itemId) {
 }
 
 function deleteSelectedItem() {
-    // /deleteService/{session}/{serviceId}
-    var url = '/rest/api/deleteService/' + sessionId + '/' + itemToDeleteId;
+    // /deleteUser/{session}/{username}
+    var url = '/rest/api/deleteUser/' + sessionId + '/' + itemToDeleteId;
     console.log(url);
     $.ajax({
         type: "POST",

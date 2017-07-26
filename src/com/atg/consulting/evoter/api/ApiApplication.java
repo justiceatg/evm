@@ -919,7 +919,7 @@ public class ApiApplication extends Application {
             }
         });
 
-        router.attach("/getElectionOfficer/{session}/{election}", new Restlet() {
+        router.attach("/getElectionOfficer/{session}/{electionOfficer}", new Restlet() {
 
             @Override
             public void handle(Request request, Response response) {
