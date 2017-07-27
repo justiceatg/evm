@@ -36,8 +36,8 @@ function loadVoters(max, index) {
                 html += '       <div class="panel panel-filled ">';
                 html += '           <div class="panel-body">';
                 html += '                <div class="btn-group pull-right m-b-md">';
-                html += '                   <button class="btn btn-default btn-xs">Edit</button>';
-                html += '                   <button class="btn btn-default btn-xs">Delete</button>';
+                html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#editModal" onclick="loadSelectedItemInfo(' + unescape(item.id) + ');">Edit</button>';
+                html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#deleteModal" onclick="setSelectedItemId(' + unescape(item.id) + ');">Delete</button>';
                 html += '               </div>';
                 html += '               <img alt="image" class="img-rounded image-lg" src="images/branch.png">';
                 html += '                <h5 class="m-b-none"><a href="#"> ' + unescape(item.fullnames) + ' </a></h5>';
@@ -91,48 +91,65 @@ function loadSelectedItemInfo(itemId) {
         dataType: 'json',
         success: function (data, status) {
             console.log(data);
-
             html += '       <div class="form-group">';
-            html += '               <label for="username" class="col-sm-2 control-label">Username</label>';
+            html += '               <label for="fullnames" class="col-sm-2 control-label">Fullnames</label>';
             html += '               <div class="col-sm-10">';
-            html += '                       <input type="text" disabled class="form-control" id="username" value="' + unescape(data.username) + '">';
+            html += '                       <input type="hidden" class="form-control" id="id" value="' + unescape(data.id) + '">';
+            html += '                       <input type="text" class="form-control" id="fullnames" value="' + unescape(data.fullnames) + '">';
             html += '               </div>';
             html += '       </div>';
             html += '       <div class="form-group">';
-            html += '               <label for="fullNames" class="col-sm-2 control-label">FullNames</label>';
+            html += '               <label for="nationalId" class="col-sm-2 control-label">National Id</label>';
             html += '               <div class="col-sm-10">';
-            html += '                       <input type="text" class="form-control" id="fullNames" value="' + unescape(data.fullNames) + '">';
+            html += '                       <input type="text" class="form-control" id="nationalId" value="' + unescape(data.nationalId) + '">';
             html += '               </div>';
             html += '       </div>';
             html += '       <div class="form-group">';
-            html += '               <label for="email" class="col-sm-2 control-label">Email</label>';
+            html += '               <label for="address" class="col-sm-2 control-label">Address</label>';
             html += '               <div class="col-sm-10">';
-            if (data.email === null) {
-                html += '                       <input type="text" class="form-control" id="email" placeholder="Email">';
+            if (data.address === null) {
+                html += '                       <input type="text" class="form-control" id="address" placeholder="Address">';
             } else {
-                html += '                       <input type="text" class="form-control" id="email" value="' + unescape(data.email) + '">';
+                html += '                       <input type="text" class="form-control" id="address" value="' + unescape(data.address) + '">';
             }
             html += '               </div>';
             html += '       </div>';
             html += '       <div class="form-group">';
-            html += '               <label for="userRole" class="col-sm-2 control-label">User Role</label>';
+            html += '               <label for="cellphone" class="col-sm-2 control-label">Cellphone</label>';
             html += '               <div class="col-sm-10">';
-            html += '                       <select class="form-control " id="userRole">'
-            html += '                               <option value="">Select user type...</option>'
-            html += '                               <option value="ADMINISTRATOR">Administrator</option>'
-            html += '                               <option value="BRANCH">Branch Manager</option>'
-            html += '                               <option value="PERF_MANAGER">Perf Manager</option>'
-            html += '                       </select>'
+            if (data.cellphone === null) {
+                html += '                       <input type="text" class="form-control" id="cellphone" placeholder="Cellphone">';
+            } else {
+                html += '                       <input type="text" class="form-control" id="cellphone" value="' + unescape(data.cellphone) + '">';
+            }
+            html += '               </div>';
+            html += '       </div>';
+            html += '       <div class="form-group">';
+            html += '               <label for="postalAddress" class="col-sm-2 control-label">Postal Address</label>';
+            html += '               <div class="col-sm-10">';
+            if (data.postalAddress === null) {
+                html += '                       <input type="text" class="form-control" id="postalAddress" placeholder="Postal Address">';
+            } else {
+                html += '                       <input type="text" class="form-control" id="postalAddress" value="' + unescape(data.postalAddress) + '">';
+            }
+            html += '               </div>';
+            html += '       </div>';
+            html += '       <div class="form-group">';
+            html += '               <label for="emailAddress" class="col-sm-2 control-label">Email Address</label>';
+            html += '               <div class="col-sm-10">';
+            if (data.emailAddress === null) {
+                html += '                       <input type="text" class="form-control" id="emailAddress" placeholder="Email Address">';
+            } else {
+                html += '                       <input type="text" class="form-control" id="emailAddress" value="' + unescape(data.emailAddress) + '">';
+            }
             html += '               </div>';
             html += '       </div>';
 
             $('#editForm').html(html);
-
-            document.getElementById('userRole').value = unescape(data.userRole);
         },
         error: function (data, status) {
             if (data.status === 400) {
-                toastr["error"]("Unable to load service details! ", "Error!")
+                toastr["error"]("Unable to load voter details! ", "Error!")
 
                 toastr.options = {
                     "debug": false,
@@ -142,7 +159,7 @@ function loadSelectedItemInfo(itemId) {
                     "progressBar": true
                 }
             } else {
-                toastr["error"]("Unable to load service details! ", "Error!")
+                toastr["error"]("Unable to load voter details! ", "Error!")
 
                 toastr.options = {
                     "debug": false,
@@ -157,7 +174,7 @@ function loadSelectedItemInfo(itemId) {
 }
 
 function updateFunction() {
-    var voterId = document.getElementById("voter").value;
+    var voterId = document.getElementById("id").value;
     var fullnames = document.getElementById("fullnames").value;
     var address = document.getElementById("address").value;
     var cellphone = document.getElementById("cellphone").value;
@@ -173,7 +190,7 @@ function updateFunction() {
     var encodeEmailAddress = encodeURIComponent(emailAddress);
     var encodedNationalId = encodeURIComponent(nationalId);
 
-    if (encodeFullnames === '' || encodeAddress === '' || encodedCellphone === '') {
+    if (encodeVoterId === '' || encodedNationalId === '' || encodeFullnames === '' || encodeAddress === '' || encodedCellphone === '' || encodePostalAddress === '' || encodeEmailAddress === '') {
 
         toastr["error"]("Make sure you have provided the fields in the form! ", "Error!")
 
@@ -192,7 +209,10 @@ function updateFunction() {
                 + encodeVoterId + '/'
                 + encodeFullnames + '/'
                 + encodeAddress + '/'
-                + encodedCellphone;
+                + encodedCellphone + '/'
+                + encodePostalAddress + '/'
+                + encodeEmailAddress + '/'
+                + encodedNationalId;
 
     console.log(url);
     $.ajax({
@@ -202,7 +222,7 @@ function updateFunction() {
         dataType: 'json',
         success: function (data, status) {
 
-            toastr["success"]("Service  was updated! ", "Success!")
+            toastr["success"]("Voter  was updated! ", "Success!")
 
             toastr.options = {
                 "debug": false,
@@ -212,11 +232,11 @@ function updateFunction() {
                 "progressBar": true
             }
 
-            window.location = "all_services.html";
+            window.location = "all_voters.html";
         },
         error: function (data, status) {
 
-            toastr["error"]("Service was not updated! ", "Success!")
+            toastr["error"]("Voter was not updated! ", "Success!")
 
             toastr.options = {
                 "debug": false,
@@ -245,7 +265,7 @@ function deleteSelectedItem() {
         dataType: 'json',
         success: function (data, status) {
             console.log(data.status);
-            toastr["success"]("Service  was deleted successfully! ", "Success!")
+            toastr["success"]("Voter was deleted successfully! ", "Success!")
 
             toastr.options = {
                 "debug": false,
@@ -255,12 +275,12 @@ function deleteSelectedItem() {
                 "progressBar": true
             }
 
-            window.location = "all_services.html";
+            window.location = "all_voters.html";
         },
         error: function (data, status) {
             if (data.status === 400) {
                 console.log(data.status);
-                toastr["error"]("Unable to delete service because it is linked! ", "Error!")
+                toastr["error"]("Unable to delete voter because it is linked! ", "Error!")
 
                 toastr.options = {
                     "debug": false,
@@ -271,7 +291,7 @@ function deleteSelectedItem() {
                 }
             } else if (data.status === 200) {
                 console.log(data.status);
-                toastr["success"]("Service  was deleted successfully! ", "Success!")
+                toastr["success"]("Voter  was deleted successfully! ", "Success!")
 
                 toastr.options = {
                     "debug": false,
@@ -281,10 +301,10 @@ function deleteSelectedItem() {
                     "progressBar": true
                 }
 
-                window.location = "all_services.html";
+                window.location = "all_voters.html";
             } else {
                 console.log(data.status);
-                toastr["error"]("Unable to delete service! ", "Error!")
+                toastr["error"]("Unable to delete voter! ", "Error!")
 
                 toastr.options = {
                     "debug": false,

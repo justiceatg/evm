@@ -36,8 +36,8 @@ function loadUsers(max, index) {
                 html += '       <div class="panel panel-filled ">';
                 html += '           <div class="panel-body">';
                 html += '                <div class="btn-group pull-right m-b-md">';
-//                html += '                       <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#editModal" onclick="loadSelectedItemInfo(' + unescape(item.username) + ');">Edit</button>';
-//                html += '                       <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#deleteModal" onclick="setSelectedItemId(' + unescape(item.username) + ');">Delete</button>';
+                html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#editModal" onclick="loadSelectedItemInfo(' + unescape(item.username) + ');">Edit</button>';
+                html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#deleteModal" onclick="setSelectedItemId(' + unescape(item.username) + ');">Delete</button>';
                 html += '               </div>';
                 html += '               <img alt="image" class="img-rounded image-lg" src="images/branch.png">';
                 html += '                <h5 class="m-b-none"><a href="#"> ' + unescape(item.fullnames) + ' </a></h5>';
@@ -140,7 +140,7 @@ function loadSelectedItemInfo(itemId) {
         },
         error: function (data, status) {
             if (data.status === 400) {
-                toastr["error"]("Unable to load service details! ", "Error!")
+                toastr["error"]("Unable to load user details! ", "Error!")
 
                 toastr.options = {
                     "debug": false,
@@ -150,7 +150,7 @@ function loadSelectedItemInfo(itemId) {
                     "progressBar": true
                 }
             } else {
-                toastr["error"]("Unable to load service details! ", "Error!")
+                toastr["error"]("Unable to load user details! ", "Error!")
 
                 toastr.options = {
                     "debug": false,
@@ -183,7 +183,7 @@ function updateFunction() {
     var encodePostalAddress = encodeURIComponent(postalAddress);
     var encodedUserRole = encodeURIComponent(userRole);
 
-    if (encodeFullNames === '' || encodeAddress === '' || encodedCellphone === '') {
+    if (encodeUsername === '' || encodeFullNames === '' || encodeAddress === '' || encodedCellphone === '' || encodeEmailAddress === '' || encodeIdType === '' || encodePostalAddress === '' || encodedUserRole === '') {
 
         toastr["error"]("Make sure you have provided the fields in the form! ", "Error!")
 
@@ -202,7 +202,11 @@ function updateFunction() {
                 + encodeUsername + '/'
                 + encodeFullNames + '/'
                 + encodeAddress + '/'
-                + encodedCellphone;
+                + encodedCellphone + '/'
+                + encodeEmailAddress + '/'
+                + encodeIdType + '/'
+                + encodePostalAddress + '/'
+                + encodedUserRole;
 
     console.log(url);
     $.ajax({
@@ -212,7 +216,7 @@ function updateFunction() {
         dataType: 'json',
         success: function (data, status) {
 
-            toastr["success"]("Service  was updated! ", "Success!")
+            toastr["success"]("User  was updated! ", "Success!")
 
             toastr.options = {
                 "debug": false,
@@ -222,11 +226,11 @@ function updateFunction() {
                 "progressBar": true
             }
 
-            window.location = "all_services.html";
+            window.location = "all_users.html";
         },
         error: function (data, status) {
 
-            toastr["error"]("Service was not updated! ", "Success!")
+            toastr["error"]("User was not updated! ", "Success!")
 
             toastr.options = {
                 "debug": false,
@@ -255,7 +259,7 @@ function deleteSelectedItem() {
         dataType: 'json',
         success: function (data, status) {
             console.log(data.status);
-            toastr["success"]("Service  was deleted successfully! ", "Success!")
+            toastr["success"]("User  was deleted successfully! ", "Success!")
 
             toastr.options = {
                 "debug": false,
@@ -265,12 +269,12 @@ function deleteSelectedItem() {
                 "progressBar": true
             }
 
-            window.location = "all_services.html";
+            window.location = "all_users.html";
         },
         error: function (data, status) {
             if (data.status === 400) {
                 console.log(data.status);
-                toastr["error"]("Unable to delete service because it is linked! ", "Error!")
+                toastr["error"]("Unable to delete user because it is linked! ", "Error!")
 
                 toastr.options = {
                     "debug": false,
@@ -281,7 +285,7 @@ function deleteSelectedItem() {
                 }
             } else if (data.status === 200) {
                 console.log(data.status);
-                toastr["success"]("Service  was deleted successfully! ", "Success!")
+                toastr["success"]("User  was deleted successfully! ", "Success!")
 
                 toastr.options = {
                     "debug": false,
@@ -291,10 +295,10 @@ function deleteSelectedItem() {
                     "progressBar": true
                 }
 
-                window.location = "all_services.html";
+                window.location = "all_users.html";
             } else {
                 console.log(data.status);
-                toastr["error"]("Unable to delete service! ", "Error!")
+                toastr["error"]("Unable to delete user! ", "Error!")
 
                 toastr.options = {
                     "debug": false,

@@ -132,5 +132,16 @@ public class VoterRegistrationJpaController extends BaseJPA {
             em.close();
         }
     }
-    
+
+    public VoterRegistration findVoterRegistrationByVoter(Long voterId) {
+        EntityManager em = getEntityManager();
+        try {
+            Query q = em.createQuery("select object(o) from VoterRegistration as o where o.voter.id =:voterId)");
+            q.setParameter("voterId", voterId);
+            return (VoterRegistration) q.getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
+
 }

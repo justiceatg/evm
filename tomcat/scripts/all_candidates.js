@@ -36,8 +36,8 @@ function loadCandidates(max, index) {
                 html += '       <div class="panel panel-filled ">';
                 html += '           <div class="panel-body">';
                 html += '                <div class="btn-group pull-right m-b-md">';
-                html += '                   <button class="btn btn-default btn-xs">Edit</button>';
-                html += '                   <button class="btn btn-default btn-xs">Delete</button>';
+                html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#editModal" onclick="loadSelectedItemInfo(' + unescape(item.id) + ');">Edit</button>';
+                html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#deleteModal" onclick="setSelectedItemId(' + unescape(item.id) + ');">Delete</button>';
                 html += '               </div>';
                 html += '               <img alt="image" class="img-rounded image-lg" src="images/branch.png">';
                 html += '                <h5 class="m-b-none"><a href="#"> ' + unescape(item.fullnames) + ' </a></h5>';
@@ -98,48 +98,80 @@ function loadSelectedItemInfo(itemId) {
         dataType: 'json',
         success: function (data, status) {
             console.log(data);
-
             html += '       <div class="form-group">';
-            html += '               <label for="username" class="col-sm-2 control-label">Username</label>';
+            html += '               <label for="candidateNumber" class="col-sm-2 control-label">Candidate Number</label>';
             html += '               <div class="col-sm-10">';
-            html += '                       <input type="text" disabled class="form-control" id="username" value="' + unescape(data.username) + '">';
+            html += '                       <input type="hidden" class="form-control" id="id" value="' + unescape(data.id) + '">';
+            html += '                       <input type="text" class="form-control" id="candidateNumber" value="' + unescape(data.candidateNumber) + '">';
             html += '               </div>';
             html += '       </div>';
             html += '       <div class="form-group">';
-            html += '               <label for="fullNames" class="col-sm-2 control-label">FullNames</label>';
+            html += '               <label for="fullnames" class="col-sm-2 control-label">Fullnames</label>';
             html += '               <div class="col-sm-10">';
-            html += '                       <input type="text" class="form-control" id="fullNames" value="' + unescape(data.fullNames) + '">';
+            html += '                       <input type="text" class="form-control" id="fullnames" value="' + unescape(data.fullnames) + '">';
             html += '               </div>';
             html += '       </div>';
             html += '       <div class="form-group">';
-            html += '               <label for="email" class="col-sm-2 control-label">Email</label>';
+            html += '               <label for="nationalId" class="col-sm-2 control-label">National Id</label>';
             html += '               <div class="col-sm-10">';
-            if (data.email === null) {
-                html += '                       <input type="text" class="form-control" id="email" placeholder="Email">';
+            html += '                       <input type="text" class="form-control" id="nationalId" value="' + unescape(data.nationalId) + '">';
+            html += '               </div>';
+            html += '       </div>';
+            html += '       <div class="form-group">';
+            html += '               <label for="electionId" class="col-sm-2 control-label">Election</label>';
+            html += '               <div class="col-sm-10">';
+            html += '                       <input type="hidden" class="form-control" id="id" value="' + unescape(data.id) + '">';
+            html += '                       <select class="form-control" id="electionId"></select>';
+            html += '               </div>';
+            html += '       </div>';
+            html += '       <div class="form-group">';
+            html += '               <label for="address" class="col-sm-2 control-label">Address</label>';
+            html += '               <div class="col-sm-10">';
+            if (data.address === null) {
+                html += '                       <input type="text" class="form-control" id="address" placeholder="Address">';
             } else {
-                html += '                       <input type="text" class="form-control" id="email" value="' + unescape(data.email) + '">';
+                html += '                       <input type="text" class="form-control" id="address" value="' + unescape(data.address) + '">';
             }
             html += '               </div>';
             html += '       </div>';
             html += '       <div class="form-group">';
-            html += '               <label for="userRole" class="col-sm-2 control-label">User Role</label>';
+            html += '               <label for="cellphone" class="col-sm-2 control-label">Cellphone</label>';
             html += '               <div class="col-sm-10">';
-            html += '                       <select class="form-control " id="userRole">'
-            html += '                               <option value="">Select user type...</option>'
-            html += '                               <option value="ADMINISTRATOR">Administrator</option>'
-            html += '                               <option value="BRANCH">Branch Manager</option>'
-            html += '                               <option value="PERF_MANAGER">Perf Manager</option>'
-            html += '                       </select>'
+            if (data.cellphone === null) {
+                html += '                       <input type="text" class="form-control" id="cellphone" placeholder="Cellphone">';
+            } else {
+                html += '                       <input type="text" class="form-control" id="cellphone" value="' + unescape(data.cellphone) + '">';
+            }
+            html += '               </div>';
+            html += '       </div>';
+            html += '       <div class="form-group">';
+            html += '               <label for="postalAddress" class="col-sm-2 control-label">Postal Address</label>';
+            html += '               <div class="col-sm-10">';
+            if (data.postalAddress === null) {
+                html += '                       <input type="text" class="form-control" id="postalAddress" placeholder="Postal Address">';
+            } else {
+                html += '                       <input type="text" class="form-control" id="postalAddress" value="' + unescape(data.postalAddress) + '">';
+            }
+            html += '               </div>';
+            html += '       </div>';
+            html += '       <div class="form-group">';
+            html += '               <label for="emailAddress" class="col-sm-2 control-label">Email Address</label>';
+            html += '               <div class="col-sm-10">';
+            if (data.emailAddress === null) {
+                html += '                       <input type="text" class="form-control" id="emailAddress" placeholder="Email Address">';
+            } else {
+                html += '                       <input type="text" class="form-control" id="emailAddress" value="' + unescape(data.emailAddress) + '">';
+            }
             html += '               </div>';
             html += '       </div>';
 
             $('#editForm').html(html);
 
-            document.getElementById('userRole').value = unescape(data.userRole);
+            loadElections(100, 0, unescape(data.election.id));
         },
         error: function (data, status) {
             if (data.status === 400) {
-                toastr["error"]("Unable to load service details! ", "Error!")
+                toastr["error"]("Unable to load candidate details! ", "Error!")
 
                 toastr.options = {
                     "debug": false,
@@ -149,7 +181,7 @@ function loadSelectedItemInfo(itemId) {
                     "progressBar": true
                 }
             } else {
-                toastr["error"]("Unable to load service details! ", "Error!")
+                toastr["error"]("Unable to load candidate details! ", "Error!")
 
                 toastr.options = {
                     "debug": false,
@@ -164,12 +196,11 @@ function loadSelectedItemInfo(itemId) {
 }
 
 function updateFunction() {
-    var candidate = document.getElementById("candidate").value;
+    var candidate = document.getElementById("id").value;
     var candidateNumber = document.getElementById("candidateNumber").value;
-    var electionOfficerId = document.getElementById("electionOfficer").value;
     var fullnames = document.getElementById("fullnames").value;
     var nationalId = document.getElementById("nationalId").value;
-    var election = document.getElementById("election").value;
+    var election = document.getElementById("electionId").value;
     var address = document.getElementById("address").value;
     var cellphone = document.getElementById("cellphone").value;
     var postalAddress = document.getElementById("postalAddress").value;
@@ -177,7 +208,6 @@ function updateFunction() {
 
     var encodeCandidate = encodeURIComponent(candidate);
     var encodedCandidateNumber = encodeURIComponent(candidateNumber);
-    var encodeVoterId = encodeURIComponent(electionOfficerId);
     var encodedNationalId = encodeURIComponent(nationalId);
     var encodeElection = encodeURIComponent(election);
     var encodeFullnames = encodeURIComponent(fullnames);
@@ -186,7 +216,7 @@ function updateFunction() {
     var encodePostalAddress = encodeURIComponent(postalAddress);
     var encodeEmailAddress = encodeURIComponent(emailAddress);
 
-    if (encodeQdcId === '' || encodeName === '' || encodedQueueType === '') {
+    if (encodeCandidate === '' || encodedCandidateNumber === '' || encodedNationalId === '' || encodeElection === '' || encodeFullnames === '' || encodeAddress === '' || encodedCellphone === '' || encodePostalAddress === '' || encodeEmailAddress === '') {
 
         toastr["error"]("Make sure you have provided the fields in the form! ", "Error!")
 
@@ -202,10 +232,15 @@ function updateFunction() {
         // /updateCandidate/{session}/{candidate}/{candidateNumber}/{fullnames}/{nationalId}/{election}/{address}/{cellphone}/{postalAddress}/{emailAddress}
         var url = '/rest/api/updateCandidate/'
                 + sessionId + '/'
-                + encodeServiceId + '/'
-                + encodeQdcId + '/'
-                + encodeName + '/'
-                + encodedQueueType;
+                + encodeCandidate + '/'
+                + encodedCandidateNumber + '/'
+                + encodeFullnames + '/'
+                + encodedNationalId + '/'
+                + encodeElection + '/'
+                + encodeAddress + '/'
+                + encodedCellphone + '/'
+                + encodePostalAddress + '/'
+                + encodeEmailAddress;
 
     console.log(url);
     $.ajax({
@@ -215,7 +250,7 @@ function updateFunction() {
         dataType: 'json',
         success: function (data, status) {
 
-            toastr["success"]("Service  was updated! ", "Success!")
+            toastr["success"]("Candidate  was updated! ", "Success!")
 
             toastr.options = {
                 "debug": false,
@@ -225,11 +260,11 @@ function updateFunction() {
                 "progressBar": true
             }
 
-            window.location = "all_services.html";
+            window.location = "all_candidates.html";
         },
         error: function (data, status) {
 
-            toastr["error"]("Service was not updated! ", "Success!")
+            toastr["error"]("Candidate was not updated! ", "Success!")
 
             toastr.options = {
                 "debug": false,
@@ -258,7 +293,7 @@ function deleteSelectedItem() {
         dataType: 'json',
         success: function (data, status) {
             console.log(data.status);
-            toastr["success"]("Service  was deleted successfully! ", "Success!")
+            toastr["success"]("Candidate  was deleted successfully! ", "Success!")
 
             toastr.options = {
                 "debug": false,
@@ -268,12 +303,12 @@ function deleteSelectedItem() {
                 "progressBar": true
             }
 
-            window.location = "all_services.html";
+            window.location = "all_candidates.html";
         },
         error: function (data, status) {
             if (data.status === 400) {
                 console.log(data.status);
-                toastr["error"]("Unable to delete service because it is linked! ", "Error!")
+                toastr["error"]("Unable to delete candidate because it is linked! ", "Error!")
 
                 toastr.options = {
                     "debug": false,
@@ -284,7 +319,7 @@ function deleteSelectedItem() {
                 }
             } else if (data.status === 200) {
                 console.log(data.status);
-                toastr["success"]("Service  was deleted successfully! ", "Success!")
+                toastr["success"]("Candidate  was deleted successfully! ", "Success!")
 
                 toastr.options = {
                     "debug": false,
@@ -294,10 +329,58 @@ function deleteSelectedItem() {
                     "progressBar": true
                 }
 
-                window.location = "all_services.html";
+                window.location = "all_candidates.html";
             } else {
                 console.log(data.status);
-                toastr["error"]("Unable to delete service! ", "Error!")
+                toastr["error"]("Unable to delete candidate! ", "Error!")
+
+                toastr.options = {
+                    "debug": false,
+                    "newestOnTop": false,
+                    "positionClass": "toast-bottom-right",
+                    "closeButton": true,
+                    "progressBar": true
+                }
+            }
+        }
+    });
+}
+
+function loadElections(max, index, electionId) {
+    // /getAllElections/{session}/{max}/{index}
+    var url = '/rest/api/getAllElections/' + sessionId + '/' + max + '/' + index;
+    var html = '';
+    console.log(url);
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: param = "",
+        dataType: 'json',
+        success: function (data, status) {
+            console.log(data);
+            html += '<option value="">Select election...</option>';
+            $.each(data, function (index, item) {
+                html += '<option value="' + unescape(item.id) + '">' + unescape(item.electionType) + '</option>';
+            });
+            $('#electionId').html(html);
+
+            console.log("electionId" + electionId);
+            document.getElementById('electionId').value = electionId;
+
+        },
+        error: function (data, status) {
+            if (data.status === 400) {
+                toastr["error"]("Unable to load the election list! ", "Error!")
+
+                toastr.options = {
+                    "debug": false,
+                    "newestOnTop": false,
+                    "positionClass": "toast-bottom-right",
+                    "closeButton": true,
+                    "progressBar": true
+                }
+            } else {
+                toastr["error"]("Unable to load the election list! ", "Error!")
 
                 toastr.options = {
                     "debug": false,

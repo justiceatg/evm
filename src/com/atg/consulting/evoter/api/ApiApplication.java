@@ -668,7 +668,7 @@ public class ApiApplication extends Application {
             }
         });
 
-        router.attach("/updateElection/{session}/{election}/{constituency}/{startDate}/{endDate}/{electionType}/{generalElection}", new Restlet() {
+        router.attach("/updateElection/{session}/{election}/{constituency}/{startDate}/{endDate}/{electionType}", new Restlet() {
 
             @Override
             public void handle(Request request, Response response) {
@@ -680,22 +680,19 @@ public class ApiApplication extends Application {
                     Date endDate = dateFormat.parse(RestletUtil.getParameter(request, "endDate"));
                     String cT = RestletUtil.getParameter(request, "electionType");
                     ElectionType electionType = Enum.valueOf(ElectionType.class, cT);
-                    Long generalElectionId = Long.parseLong(RestletUtil.getParameter(request, "generalElection"));
 
                     LoginSession loginSession = Cache.getInstance().getSession(session);
                     if (loginSession != null && loginSession.getUser().getUserRole() == UserRole.ADMINISTRATOR) {
                         try {
                             Constituency constituency = JPAFactory.getInstance().getConstituencyJpaController().findConstituency(constituencyId);
-                            GeneralElection generalElection = JPAFactory.getInstance().getGeneralElectionJpaController().findGeneralElection(generalElectionId);
 
                             Election election = JPAFactory.getInstance().getElectionJpaController().findElection(electionId);
                             election.setConstituency(constituency);
                             election.setStartDate(startDate);
                             election.setEndDate(endDate);
                             election.setElectionType(electionType);
-                            election.setGeneralElection(generalElection);
-                            JPAFactory.getInstance().getConstituencyJpaController().edit(constituency);
-                            response.setEntity(new JacksonRepresentation(new ConstituencyData(constituency)));
+                            JPAFactory.getInstance().getElectionJpaController().edit(election);
+                            response.setEntity(new JacksonRepresentation(new ElectionData(election)));
                             response.setStatus(Status.SUCCESS_OK);
                         } catch (Exception e) {
                             response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
@@ -1188,6 +1185,9 @@ public class ApiApplication extends Application {
                     LoginSession loginSession = Cache.getInstance().getSession(session);
                     if (loginSession != null && loginSession.getUser().getUserRole() == UserRole.ADMINISTRATOR) {
                         try {
+                            VoterRegistration registration = JPAFactory.getInstance().getVoterRegistrationJpaController().findVoterRegistrationByVoter(voterId);
+                            JPAFactory.getInstance().getVoterRegistrationJpaController().destroy(registration.getId());
+
                             JPAFactory.getInstance().getVoterJpaController().destroy(voterId);
                             response.setStatus(Status.SUCCESS_OK);
                         } catch (Exception e) {
