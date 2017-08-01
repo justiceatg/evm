@@ -14,6 +14,7 @@ import com.atg.consulting.evoter.domain.UserRole;
  */
 public class UserData {
 
+    private Long id;
     private String username;
     private UserRole userRole;
     private String fullnames;
@@ -24,6 +25,7 @@ public class UserData {
     private String nationalId;
 
     public UserData(User u) {
+        id = u.getId();
         userRole = u.getUserRole();
         username = u.getUsername();
         fullnames = u.getFullnames();
@@ -32,6 +34,14 @@ public class UserData {
         nationalId = u.getNationalId();
         postalAddress = u.getPostalAddress();
         emailAddress = u.getEmailAddress();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getUsername() {

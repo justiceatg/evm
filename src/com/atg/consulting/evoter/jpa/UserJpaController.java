@@ -7,7 +7,6 @@ package com.atg.consulting.evoter.jpa;
 
 import com.atg.consulting.evoter.domain.User;
 import com.atg.consulting.evoter.jpa.exceptions.NonexistentEntityException;
-import com.atg.consulting.evoter.jpa.exceptions.PreexistingEntityException;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -30,18 +29,13 @@ public class UserJpaController extends BaseJPA {
         return emf.createEntityManager();
     }
 
-    public void create(User user) throws PreexistingEntityException, Exception {
+    public void create(User user) {
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
             em.persist(user);
             em.getTransaction().commit();
-        } catch (Exception ex) {
-            if (findUser(user.getUsername()) != null) {
-                throw new PreexistingEntityException("User " + user + " already exists.", ex);
-            }
-            throw ex;
         } finally {
             if (em != null) {
                 em.close();
@@ -59,7 +53,7 @@ public class UserJpaController extends BaseJPA {
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
             if (msg == null || msg.length() == 0) {
-                String id = user.getUsername();
+                Long id = user.getId();
                 if (findUser(id) == null) {
                     throw new NonexistentEntityException("The user with id " + id + " no longer exists.");
                 }
@@ -72,7 +66,7 @@ public class UserJpaController extends BaseJPA {
         }
     }
 
-    public void destroy(String id) throws NonexistentEntityException {
+    public void destroy(Long id) throws NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -80,7 +74,7 @@ public class UserJpaController extends BaseJPA {
             User user;
             try {
                 user = em.getReference(User.class, id);
-                user.getUsername();
+                user.getId();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The user with id " + id + " no longer exists.", enfe);
             }
@@ -117,7 +111,7 @@ public class UserJpaController extends BaseJPA {
         }
     }
 
-    public User findUser(String id) {
+    public User findUser(Long id) {
         EntityManager em = getEntityManager();
         try {
             return em.find(User.class, id);
@@ -134,6 +128,20 @@ public class UserJpaController extends BaseJPA {
             cq.select(em.getCriteriaBuilder().count(rt));
             Query q = em.createQuery(cq);
             return ((Long) q.getSingleResult()).intValue();
+        } finally {
+            em.close();
+        }
+    }
+
+    public User findUserByName(String username) {
+        EntityManager em = getEntityManager();
+        try {
+            Query q = em.createQuery("select object(o) from User as o where o.username =:username");
+            q.setParameter("username", username);
+            return (User) q.getSingleResult();
+        } catch (Exception ex) {
+            System.out.println(ex.getLocalizedMessage());
+            return null;
         } finally {
             em.close();
         }

@@ -31,6 +31,7 @@ import com.atg.consulting.evoter.entitydata.VoteData;
 import com.atg.consulting.evoter.entitydata.VoterData;
 import com.atg.consulting.evoter.entitydata.VoterRegistrationData;
 import com.atg.consulting.evoter.jpa.JPAFactory;
+import com.atg.consulting.evoter.jpa.exceptions.NonexistentEntityException;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -69,7 +70,7 @@ public class ApiApplication extends Application {
                     String username = RestletUtil.getParameter(request, "username").toLowerCase().trim();
                     String password = RestletUtil.getParameter(request, "password");
 
-                    User user = JPAFactory.getInstance().getUserJpaController().findUser(username.toLowerCase());
+                    User user = JPAFactory.getInstance().getUserJpaController().findUserByName(username.toLowerCase());
                     try {
                         String digest = CommonUtil.getSHADigest(password);
                         if (user != null && user.getPassword().equals(digest)) {
@@ -195,7 +196,7 @@ public class ApiApplication extends Application {
                     LoginSession loginSession = Cache.getInstance().getSession(session);
                     if (loginSession != null && loginSession.getUser().getUserRole() == UserRole.ADMINISTRATOR) {
                         try {
-                            User user = JPAFactory.getInstance().getUserJpaController().findUser(username);
+                            User user = JPAFactory.getInstance().getUserJpaController().findUserByName(username);
                             user.setPassword(CommonUtil.getSHADigest(password));
                             JPAFactory.getInstance().getUserJpaController().edit(user);
                             response.setEntity(new JacksonRepresentation(new UserData(user)));
@@ -210,13 +211,13 @@ public class ApiApplication extends Application {
             }
         });
 
-        router.attach("/updateUser/{session}/{username}/{fullNames}/{address}/{cellphone}/{emailAddress}/{nationalId}/{postalAddress}/{userRole}", new Restlet() {
+        router.attach("/updateUser/{session}/{userId}/{fullNames}/{address}/{cellphone}/{emailAddress}/{nationalId}/{postalAddress}/{userRole}", new Restlet() {
 
             @Override
             public void handle(Request request, Response response) {
                 try {
                     String session = RestletUtil.getParameter(request, "session");
-                    String username = RestletUtil.getParameter(request, "username");
+                    Long userId = Long.valueOf(RestletUtil.getParameter(request, "userId"));
                     String fullNames = RestletUtil.getParameter(request, "fullNames");
                     String address = RestletUtil.getParameter(request, "address");
                     String cellphone = RestletUtil.getParameter(request, "cellphone");
@@ -229,14 +230,24 @@ public class ApiApplication extends Application {
                     LoginSession loginSession = Cache.getInstance().getSession(session);
                     if (loginSession != null && loginSession.getUser().getUserRole() == UserRole.ADMINISTRATOR) {
                         try {
-                            User user = JPAFactory.getInstance().getUserJpaController().findUser(username);
+                            User user = JPAFactory.getInstance().getUserJpaController().findUser(userId);
                             user.setFullnames(fullNames);
-                            user.setAddress(address);
-                            user.setCellphone(cellphone);
-                            user.setEmailAddress(emailAddress);
-                            user.setNationalId(nationalId);
-                            user.setPostalAddress(postalAddress);
                             user.setUserRole(ur);
+                            if (!nationalId.equals("null")) {
+                                user.setNationalId(nationalId);
+                            }
+                            if (!address.equals("null")) {
+                                user.setAddress(address);
+                            }
+                            if (!cellphone.equals("null")) {
+                                user.setCellphone(cellphone);
+                            }
+                            if (!emailAddress.equals("null")) {
+                                user.setEmailAddress(emailAddress);
+                            }
+                            if (!postalAddress.equals("null")) {
+                                user.setPostalAddress(postalAddress);
+                            }
                             JPAFactory.getInstance().getUserJpaController().edit(user);
                             response.setEntity(new JacksonRepresentation(new UserData(user)));
                             response.setStatus(Status.SUCCESS_OK);
@@ -250,20 +261,20 @@ public class ApiApplication extends Application {
             }
         });
 
-        router.attach("/deleteUser/{session}/{username}", new Restlet() {
+        router.attach("/deleteUser/{session}/{userId}", new Restlet() {
 
             @Override
             public void handle(Request request, Response response) {
                 try {
                     String session = RestletUtil.getParameter(request, "session");
-                    String username = RestletUtil.getParameter(request, "username");
+                    Long userId = Long.valueOf(RestletUtil.getParameter(request, "userId"));
 
                     LoginSession loginSession = Cache.getInstance().getSession(session);
                     if (loginSession != null && loginSession.getUser().getUserRole() == UserRole.ADMINISTRATOR) {
                         try {
-                            JPAFactory.getInstance().getUserJpaController().destroy(username);
+                            JPAFactory.getInstance().getUserJpaController().destroy(userId);
                             response.setStatus(Status.SUCCESS_OK);
-                        } catch (Exception e) {
+                        } catch (NonexistentEntityException ex) {
                             response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
                         }
                     }
@@ -306,18 +317,18 @@ public class ApiApplication extends Application {
             }
         });
 
-        router.attach("/getUser/{session}/{username}", new Restlet() {
+        router.attach("/getUser/{session}/{userId}", new Restlet() {
 
             @Override
             public void handle(Request request, Response response) {
                 try {
                     String session = RestletUtil.getParameter(request, "session");
-                    String username = RestletUtil.getParameter(request, "username");
+                    Long userId = Long.valueOf(RestletUtil.getParameter(request, "userId"));
 
                     LoginSession loginSession = Cache.getInstance().getSession(session);
                     if (loginSession != null && loginSession.getUser().getUserRole() == UserRole.ADMINISTRATOR) {
                         try {
-                            User user = JPAFactory.getInstance().getUserJpaController().findUser(username);
+                            User user = JPAFactory.getInstance().getUserJpaController().findUser(userId);
                             response.setEntity(new JacksonRepresentation(new UserData(user)));
                             response.setStatus(Status.SUCCESS_OK);
                         } catch (Exception e) {
