@@ -132,7 +132,7 @@ public class VoterJpaController extends BaseJPA {
             em.close();
         }
     }
-    
+
     public Long createAndReturnId(Voter voter) {
         EntityManager em = null;
         try {
@@ -148,6 +148,20 @@ public class VoterJpaController extends BaseJPA {
             if (em != null) {
                 em.close();
             }
+        }
+    }
+
+    public List<Voter> findVoterByNationalId(String searchText) {
+        EntityManager em = getEntityManager();
+        try {
+            Query q = em.createQuery("select object(o) from Voter as o where o.nationalId like :searchText");
+            q.setParameter("searchText", "%" + searchText + "%");
+            return q.getResultList();
+        } catch (Exception ex) {
+            System.out.println(ex.getLocalizedMessage());
+            return null;
+        } finally {
+            em.close();
         }
     }
 

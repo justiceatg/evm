@@ -60,9 +60,9 @@
                                 <i class="stroke-hamburgermenu"></i>
                             </a>
                         </div>
-                        <form class="navbar-form navbar-left">
+<!--                        <form class="navbar-form navbar-left">
                             <input type="text" class="form-control" placeholder="Search data for analysis" style="width: 175px">
-                        </form>
+                        </form>-->
                         <ul class="nav navbar-nav navbar-right">
                             <li class=" profil-link">
                                 <a onclick="logOutUser();">
@@ -151,13 +151,12 @@
                                     <div class="row">
                                         <div class="col-lg-12">
                                             <div class="input-group m-b-xs">
-                                                <input class="form-control" type="text" placeholder="Search by Name.." style="width: 100%">
+                                                <input class="form-control" type="text" placeholder="Search by national id.." style="width: 100%" id="searchText">
                                                 <div class="input-group-btn">
-                                                    <button class="btn btn-default"><i class="fa fa-search"></i></button>
+                                                    <button class="btn btn-default"><i class="fa fa-search" onclick="searchFunction();"></i></button>
                                                 </div>
                                             </div>
                                         </div>
-
                                     </div>
 
 
@@ -176,20 +175,11 @@
 
                     <div class="pull-right">
                         <ul class="pagination">
-                            <li class="disabled">
-                                <a href="#">Previous</a>
-                            </li>
-                            <li class="active">
-                                <a href="#">1</a>
+                            <li>
+                                <a onclick="previous();">Previous</a>
                             </li>
                             <li>
-                                <a href="#">2</a>
-                            </li>
-                            <li>
-                                <a href="#">3</a>
-                            </li>
-                            <li>
-                                <a href="#">Next</a>
+                                <a onclick="next();">Next</a>
                             </li>
                         </ul>
                     </div>

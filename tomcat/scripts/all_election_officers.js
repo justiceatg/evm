@@ -1,5 +1,7 @@
 var sessionId;
 var sessionDataObject;
+var index = 0;
+var max = 6;
 
 function initForm() {
     if (sessionStorage.length > 0) {
@@ -14,9 +16,96 @@ function initForm() {
 
     if (sessionId != null) {
         loadLoggedInUser();
-        loadElectionOfficers(100, 0);
+        loadElectionOfficers(max, index);
     }
     ;
+}
+
+function next() {
+    index = index + max;
+    var html = '';
+    // /getAllElectionOfficers/{session}/{max}/{index}
+    var url = '/rest/api/getAllElectionOfficers/' + sessionId + '/' + max + '/' + index;
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: param = "",
+        dataType: 'json',
+        success: function (data, status) {
+            if (data.length === 0) {
+                toastr["warning"]("Reached the end of the list! ", "Info!")
+
+                toastr.options = {
+                    "debug": false,
+                    "newestOnTop": false,
+                    "positionClass": "toast-bottom-right",
+                    "closeButton": true,
+                    "progressBar": true
+                }
+            } else {
+                $.each(data, function (index, item) {
+                    html += '<div class="col-md-4">';
+                    html += '       <div class="panel panel-filled ">';
+                    html += '           <div class="panel-body">';
+                    html += '                <div class="btn-group pull-right m-b-md">';
+                    html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#editModal" onclick="loadSelectedItemInfo(' + unescape(item.id) + ');">Edit</button>';
+                    html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#deleteModal" onclick="setSelectedItemId(' + unescape(item.id) + ');">Delete</button>';
+                    html += '               </div>';
+                    html += '               <img alt="image" class="img-rounded image-lg" src="images/branch.png">';
+                    html += '                <h5 class="m-b-none"><a href="#"> ' + unescape(item.fullnames) + ' </a></h5>';
+                    html += '                     <br>';
+                    html += '                <p>';
+                    html += '                     National Id: ' + unescape(item.nationalId);
+                    html += '                </p>'
+                    html += '            <small><i class="fa fa-clock-o"></i> Constituency: ' + unescape(item.election.constituency.name) + ' </small>';
+                    html += '           </div>';
+                    html += '       </div>';
+                    html += '   </div>';
+                });
+                $('#electionOfficersHolderId').html(html);
+            }
+        },
+        error: function (data, status) {
+            if (data.status === 400) {
+                toastr["error"]("Unable to load the election officer list! ", "Error!")
+
+                toastr.options = {
+                    "debug": false,
+                    "newestOnTop": false,
+                    "positionClass": "toast-bottom-right",
+                    "closeButton": true,
+                    "progressBar": true
+                }
+            } else {
+                toastr["error"]("Unable to load the election officer list! ", "Error!")
+
+                toastr.options = {
+                    "debug": false,
+                    "newestOnTop": false,
+                    "positionClass": "toast-bottom-right",
+                    "closeButton": true,
+                    "progressBar": true
+                }
+            }
+        }
+    });
+}
+
+function previous() {
+    index = index - max;
+    if (index < 0) {
+        toastr["warning"]("Reached the beginning of the list! ", "Info!")
+
+        toastr.options = {
+            "debug": false,
+            "newestOnTop": false,
+            "positionClass": "toast-bottom-right",
+            "closeButton": true,
+            "progressBar": true
+        }
+    } else {
+        loadElectionOfficers(max, index);
+    }
 }
 
 function loadElectionOfficers(max, index) {
@@ -377,4 +466,93 @@ function loadElections(max, index, electionId) {
             }
         }
     });
+}
+
+function searchFunction() {
+    var searchText = document.getElementById("searchText").value;
+
+    var encodeSearchText = encodeURIComponent(searchText);
+
+    if (encodeSearchText === '') {
+
+        toastr["error"]("Make sure you have provided the fields in the form! ", "Error!")
+
+        toastr.options = {
+            "debug": false,
+            "newestOnTop": false,
+            "positionClass": "toast-bottom-right",
+            "closeButton": true,
+            "progressBar": true
+        }
+
+    } else {
+
+        // /rest/api/searchElectionOfficers/{searchText}
+        var html = '';
+        var url = '/rest/api/searchElectionOfficers/' + encodeSearchText;
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: param = "",
+            dataType: 'json',
+            success: function (data, status) {
+                if (data.length === 0) {
+                    toastr["warning"]("No record found matcing your search text! ", "Info!")
+
+                    toastr.options = {
+                        "debug": false,
+                        "newestOnTop": false,
+                        "positionClass": "toast-bottom-right",
+                        "closeButton": true,
+                        "progressBar": true
+                    }
+                } else {
+                    $.each(data, function (index, item) {
+
+                        html += '<div class="col-md-4">';
+                        html += '       <div class="panel panel-filled ">';
+                        html += '           <div class="panel-body">';
+                        html += '                <div class="btn-group pull-right m-b-md">';
+                        html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#editModal" onclick="loadSelectedItemInfo(' + unescape(item.id) + ');">Edit</button>';
+                        html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#deleteModal" onclick="setSelectedItemId(' + unescape(item.id) + ');">Delete</button>';
+                        html += '               </div>';
+                        html += '               <img alt="image" class="img-rounded image-lg" src="images/branch.png">';
+                        html += '                <h5 class="m-b-none"><a href="#"> ' + unescape(item.fullnames) + ' </a></h5>';
+                        html += '                     <br>';
+                        html += '                <p>';
+                        html += '                     National Id: ' + unescape(item.nationalId);
+                        html += '                </p>'
+                        html += '            <small><i class="fa fa-clock-o"></i> Constituency: ' + unescape(item.election.constituency.name) + ' </small>';
+                        html += '           </div>';
+                        html += '       </div>';
+                        html += '   </div>';
+                    });
+                    $('#electionOfficersHolderId').html(html);
+                }
+            },
+            error: function (data, status) {
+                if (data.status === 400) {
+                    toastr["error"]("No election officer found matching that name! ", "Error!")
+
+                    toastr.options = {
+                        "debug": false,
+                        "newestOnTop": false,
+                        "positionClass": "toast-bottom-right",
+                        "closeButton": true,
+                        "progressBar": true
+                    }
+                } else {
+                    toastr["error"]("No election officer found matching that name! ", "Error!")
+
+                    toastr.options = {
+                        "debug": false,
+                        "newestOnTop": false,
+                        "positionClass": "toast-bottom-right",
+                        "closeButton": true,
+                        "progressBar": true
+                    }
+                }
+            }
+        });
+    }
 }

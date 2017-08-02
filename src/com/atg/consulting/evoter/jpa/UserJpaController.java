@@ -147,4 +147,17 @@ public class UserJpaController extends BaseJPA {
         }
     }
 
+    public List<User> findUserByUsername(String searchText) {
+        EntityManager em = getEntityManager();
+        try {
+            Query q = em.createQuery("select object(o) from User as o where o.username like :searchText");
+            q.setParameter("searchText", "%" + searchText.toLowerCase() + "%");
+            return q.getResultList();
+        } catch (Exception ex) {
+            System.out.println(ex.getLocalizedMessage());
+            return null;
+        } finally {
+            em.close();
+        }
+    }
 }

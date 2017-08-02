@@ -341,6 +341,30 @@ public class ApiApplication extends Application {
             }
         });
 
+        router.attach("/searchUsers/{searchText}", new Restlet() {
+
+            @Override
+            public void handle(Request request, Response response) {
+                try {
+                    String searchText = RestletUtil.getParameter(request, "searchText");
+
+                    List<User> users = JPAFactory.getInstance().getUserJpaController().findUserByUsername(searchText);
+
+                    UserData[] data = new UserData[users.size()];
+                    int k = 0;
+                    for (User u : users) {
+                        data[k] = new UserData(u);
+                        k++;
+                    }
+
+                    response.setEntity(new JacksonRepresentation(data));
+                    response.setStatus(Status.SUCCESS_OK);
+                } catch (UnsupportedEncodingException ex) {
+                    Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
         router.attach("/addCandidate/{session}/{candidateNumber}/{fullnames}/{nationalId}/{election}", new Restlet() {
 
             @Override
@@ -499,6 +523,30 @@ public class ApiApplication extends Application {
             }
         });
 
+        router.attach("/searchCandidates/{searchText}", new Restlet() {
+
+            @Override
+            public void handle(Request request, Response response) {
+                try {
+                    String searchText = RestletUtil.getParameter(request, "searchText");
+
+                    List<Candidate> candidates = JPAFactory.getInstance().getCandidateJpaController().findCandidateByNationalId(searchText);
+
+                    CandidateData[] data = new CandidateData[candidates.size()];
+                    int k = 0;
+                    for (Candidate c : candidates) {
+                        data[k] = new CandidateData(c);
+                        k++;
+                    }
+
+                    response.setEntity(new JacksonRepresentation(data));
+                    response.setStatus(Status.SUCCESS_OK);
+                } catch (UnsupportedEncodingException ex) {
+                    Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
         router.attach("/addConstituency/{session}/{name}/{constituencyType}", new Restlet() {
 
             @Override
@@ -635,6 +683,30 @@ public class ApiApplication extends Application {
                             response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
                         }
                     }
+                } catch (UnsupportedEncodingException ex) {
+                    Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
+        router.attach("/searchConstituencies/{searchText}", new Restlet() {
+
+            @Override
+            public void handle(Request request, Response response) {
+                try {
+                    String searchText = RestletUtil.getParameter(request, "searchText");
+
+                    List<Constituency> constituencies = JPAFactory.getInstance().getConstituencyJpaController().findConstituenciesByName(searchText);
+
+                    ConstituencyData[] data = new ConstituencyData[constituencies.size()];
+                    int k = 0;
+                    for (Constituency c : constituencies) {
+                        data[k] = new ConstituencyData(c);
+                        k++;
+                    }
+
+                    response.setEntity(new JacksonRepresentation(data));
+                    response.setStatus(Status.SUCCESS_OK);
                 } catch (UnsupportedEncodingException ex) {
                     Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -789,6 +861,30 @@ public class ApiApplication extends Application {
                             response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
                         }
                     }
+                } catch (UnsupportedEncodingException ex) {
+                    Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
+        router.attach("/searchElections/{searchText}", new Restlet() {
+
+            @Override
+            public void handle(Request request, Response response) {
+                try {
+                    String searchText = RestletUtil.getParameter(request, "searchText");
+
+                    List<Election> elections = JPAFactory.getInstance().getElectionJpaController().findElectionsByConstituencyName(searchText);
+
+                    ElectionData[] data = new ElectionData[elections.size()];
+                    int k = 0;
+                    for (Election e : elections) {
+                        data[k] = new ElectionData(e);
+                        k++;
+                    }
+
+                    response.setEntity(new JacksonRepresentation(data));
+                    response.setStatus(Status.SUCCESS_OK);
                 } catch (UnsupportedEncodingException ex) {
                     Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -951,6 +1047,30 @@ public class ApiApplication extends Application {
             }
         });
 
+        router.attach("/searchElectionOfficers/{searchText}", new Restlet() {
+
+            @Override
+            public void handle(Request request, Response response) {
+                try {
+                    String searchText = RestletUtil.getParameter(request, "searchText");
+
+                    List<ElectionOfficer> electionOfficers = JPAFactory.getInstance().getElectionOfficerJpaController().findElectionOfficersByNationalId(searchText);
+
+                    ElectionOfficerData[] data = new ElectionOfficerData[electionOfficers.size()];
+                    int k = 0;
+                    for (ElectionOfficer eo : electionOfficers) {
+                        data[k] = new ElectionOfficerData(eo);
+                        k++;
+                    }
+
+                    response.setEntity(new JacksonRepresentation(data));
+                    response.setStatus(Status.SUCCESS_OK);
+                } catch (UnsupportedEncodingException ex) {
+                    Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
         router.attach("/addVote/{session}/{election}/{voterRegistration}/{voted}/{voteNumber}", new Restlet() {
 
             @Override
@@ -989,67 +1109,66 @@ public class ApiApplication extends Application {
             }
         });
 
-        router.attach("/updateVote/{session}/{vote}/{election}/{voterRegistration}/{voted}/{voteNumber}", new Restlet() {
-
-            @Override
-            public void handle(Request request, Response response) {
-                try {
-
-                    String session = RestletUtil.getParameter(request, "session");
-                    Long voteId = Long.parseLong(RestletUtil.getParameter(request, "vote"));
-                    Long electionId = Long.parseLong(RestletUtil.getParameter(request, "election"));
-                    Long voterRegistrationId = Long.parseLong(RestletUtil.getParameter(request, "voterRegistration"));
-                    Long votedId = Long.parseLong(RestletUtil.getParameter(request, "voted"));
-                    int voteNumber = Integer.parseInt(RestletUtil.getParameter(request, "voteNumber"));
-
-                    LoginSession loginSession = Cache.getInstance().getSession(session);
-                    if (loginSession != null && loginSession.getUser().getUserRole() == UserRole.ADMINISTRATOR) {
-                        try {
-                            Election election = JPAFactory.getInstance().getElectionJpaController().findElection(electionId);
-                            VoterRegistration voterRegistration = JPAFactory.getInstance().getVoterRegistrationJpaController().findVoterRegistration(voterRegistrationId);
-                            Candidate candidate = JPAFactory.getInstance().getCandidateJpaController().findCandidate(votedId);
-
-                            Vote vote = JPAFactory.getInstance().getVoteJpaController().findVote(voteId);
-                            vote.setElection(election);
-                            vote.setVoterRegistration(voterRegistration);
-                            vote.setVoted(candidate);
-                            vote.setVoteNumber(voteNumber);
-                            JPAFactory.getInstance().getVoteJpaController().edit(vote);
-                            response.setEntity(new JacksonRepresentation(new VoteData(vote)));
-                            response.setStatus(Status.SUCCESS_OK);
-                        } catch (Exception e) {
-                            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-                        }
-                    }
-                } catch (UnsupportedEncodingException ex) {
-                    Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        });
-
-        router.attach("/deleteVote/{session}/{vote}", new Restlet() {
-
-            @Override
-            public void handle(Request request, Response response) {
-                try {
-                    String session = RestletUtil.getParameter(request, "session");
-                    Long voteId = Long.parseLong(RestletUtil.getParameter(request, "vote"));
-
-                    LoginSession loginSession = Cache.getInstance().getSession(session);
-                    if (loginSession != null && loginSession.getUser().getUserRole() == UserRole.ADMINISTRATOR) {
-                        try {
-                            JPAFactory.getInstance().getVoteJpaController().destroy(voteId);
-                            response.setStatus(Status.SUCCESS_OK);
-                        } catch (Exception e) {
-                            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-                        }
-                    }
-                } catch (UnsupportedEncodingException ex) {
-                    Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        });
-
+//        router.attach("/updateVote/{session}/{vote}/{election}/{voterRegistration}/{voted}/{voteNumber}", new Restlet() {
+//
+//            @Override
+//            public void handle(Request request, Response response) {
+//                try {
+//
+//                    String session = RestletUtil.getParameter(request, "session");
+//                    Long voteId = Long.parseLong(RestletUtil.getParameter(request, "vote"));
+//                    Long electionId = Long.parseLong(RestletUtil.getParameter(request, "election"));
+//                    Long voterRegistrationId = Long.parseLong(RestletUtil.getParameter(request, "voterRegistration"));
+//                    Long votedId = Long.parseLong(RestletUtil.getParameter(request, "voted"));
+//                    int voteNumber = Integer.parseInt(RestletUtil.getParameter(request, "voteNumber"));
+//
+//                    LoginSession loginSession = Cache.getInstance().getSession(session);
+//                    if (loginSession != null && loginSession.getUser().getUserRole() == UserRole.ADMINISTRATOR) {
+//                        try {
+//                            Election election = JPAFactory.getInstance().getElectionJpaController().findElection(electionId);
+//                            VoterRegistration voterRegistration = JPAFactory.getInstance().getVoterRegistrationJpaController().findVoterRegistration(voterRegistrationId);
+//                            Candidate candidate = JPAFactory.getInstance().getCandidateJpaController().findCandidate(votedId);
+//
+//                            Vote vote = JPAFactory.getInstance().getVoteJpaController().findVote(voteId);
+//                            vote.setElection(election);
+//                            vote.setVoterRegistration(voterRegistration);
+//                            vote.setVoted(candidate);
+//                            vote.setVoteNumber(voteNumber);
+//                            JPAFactory.getInstance().getVoteJpaController().edit(vote);
+//                            response.setEntity(new JacksonRepresentation(new VoteData(vote)));
+//                            response.setStatus(Status.SUCCESS_OK);
+//                        } catch (Exception e) {
+//                            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+//                        }
+//                    }
+//                } catch (UnsupportedEncodingException ex) {
+//                    Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
+//        });
+//
+//        router.attach("/deleteVote/{session}/{vote}", new Restlet() {
+//
+//            @Override
+//            public void handle(Request request, Response response) {
+//                try {
+//                    String session = RestletUtil.getParameter(request, "session");
+//                    Long voteId = Long.parseLong(RestletUtil.getParameter(request, "vote"));
+//
+//                    LoginSession loginSession = Cache.getInstance().getSession(session);
+//                    if (loginSession != null && loginSession.getUser().getUserRole() == UserRole.ADMINISTRATOR) {
+//                        try {
+//                            JPAFactory.getInstance().getVoteJpaController().destroy(voteId);
+//                            response.setStatus(Status.SUCCESS_OK);
+//                        } catch (Exception e) {
+//                            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+//                        }
+//                    }
+//                } catch (UnsupportedEncodingException ex) {
+//                    Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
+//        });
         router.attach("/getAllVotes/{session}/{max}/{index}", new Restlet() {
 
             @Override
@@ -1262,6 +1381,30 @@ public class ApiApplication extends Application {
                             response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
                         }
                     }
+                } catch (UnsupportedEncodingException ex) {
+                    Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
+        router.attach("/searchVoters/{searchText}", new Restlet() {
+
+            @Override
+            public void handle(Request request, Response response) {
+                try {
+                    String searchText = RestletUtil.getParameter(request, "searchText");
+
+                    List<Voter> voters = JPAFactory.getInstance().getVoterJpaController().findVoterByNationalId(searchText);
+
+                    VoterData[] data = new VoterData[voters.size()];
+                    int k = 0;
+                    for (Voter v : voters) {
+                        data[k] = new VoterData(v);
+                        k++;
+                    }
+
+                    response.setEntity(new JacksonRepresentation(data));
+                    response.setStatus(Status.SUCCESS_OK);
                 } catch (UnsupportedEncodingException ex) {
                     Logger.getLogger(ApiApplication.class.getName()).log(Level.SEVERE, null, ex);
                 }

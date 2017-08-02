@@ -133,4 +133,18 @@ public class CandidateJpaController extends BaseJPA {
         }
     }
 
+    public List<Candidate> findCandidateByNationalId(String searchText) {
+        EntityManager em = getEntityManager();
+        try {
+            Query q = em.createQuery("select object(o) from Candidate as o where o.nationalId like :searchText");
+            q.setParameter("searchText", "%" + searchText + "%");
+            return q.getResultList();
+        } catch (Exception ex) {
+            System.out.println(ex.getLocalizedMessage());
+            return null;
+        } finally {
+            em.close();
+        }
+    }
+
 }

@@ -1,5 +1,7 @@
 var sessionId;
 var sessionDataObject;
+var index = 0;
+var max = 6;
 
 function initForm() {
     if (sessionStorage.length > 0) {
@@ -14,9 +16,95 @@ function initForm() {
 
     if (sessionId != null) {
         loadLoggedInUser();
-        loadVoters(100, 0);
+        loadVoters(max, index);
     }
     ;
+}
+
+function next() {
+    index = index + max;
+    var html = '';
+    // /getAllVoters/{session}/{max}/{index}
+    var url = '/rest/api/getAllVoters/' + sessionId + '/' + max + '/' + index;
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: param = "",
+        dataType: 'json',
+        success: function (data, status) {
+            if (data.length === 0) {
+                toastr["warning"]("Reached the end of the list! ", "Info!")
+
+                toastr.options = {
+                    "debug": false,
+                    "newestOnTop": false,
+                    "positionClass": "toast-bottom-right",
+                    "closeButton": true,
+                    "progressBar": true
+                }
+            } else {
+                $.each(data, function (index, item) {
+                    html += '<div class="col-md-4">';
+                    html += '       <div class="panel panel-filled ">';
+                    html += '           <div class="panel-body">';
+                    html += '                <div class="btn-group pull-right m-b-md">';
+                    html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#editModal" onclick="loadSelectedItemInfo(' + unescape(item.id) + ');">Edit</button>';
+                    html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#deleteModal" onclick="setSelectedItemId(' + unescape(item.id) + ');">Delete</button>';
+                    html += '               </div>';
+                    html += '               <img alt="image" class="img-rounded image-lg" src="images/branch.png">';
+                    html += '                <h5 class="m-b-none"><a href="#"> ' + unescape(item.fullnames) + ' </a></h5>';
+                    html += '                     <br>';
+                    html += '                <p>';
+                    html += '                     National Id: ' + unescape(item.nationalId);
+                    html += '                </p>'
+                    html += '           </div>';
+                    html += '       </div>';
+                    html += '   </div>';
+                });
+                $('#votersHolderId').html(html);
+            }
+        },
+        error: function (data, status) {
+            if (data.status === 400) {
+                toastr["error"]("Unable to load the voter list! ", "Error!")
+
+                toastr.options = {
+                    "debug": false,
+                    "newestOnTop": false,
+                    "positionClass": "toast-bottom-right",
+                    "closeButton": true,
+                    "progressBar": true
+                }
+            } else {
+                toastr["error"]("Unable to load the voter list! ", "Error!")
+
+                toastr.options = {
+                    "debug": false,
+                    "newestOnTop": false,
+                    "positionClass": "toast-bottom-right",
+                    "closeButton": true,
+                    "progressBar": true
+                }
+            }
+        }
+    });
+}
+
+function previous() {
+    index = index - max;
+    if (index < 0) {
+        toastr["warning"]("Reached the beginning of the list! ", "Info!")
+
+        toastr.options = {
+            "debug": false,
+            "newestOnTop": false,
+            "positionClass": "toast-bottom-right",
+            "closeButton": true,
+            "progressBar": true
+        }
+    } else {
+        loadVoters(max, index);
+    }
 }
 
 function loadVoters(max, index) {
@@ -316,4 +404,92 @@ function deleteSelectedItem() {
             }
         }
     });
+}
+
+function searchFunction() {
+    var searchText = document.getElementById("searchText").value;
+
+    var encodeSearchText = encodeURIComponent(searchText);
+
+    if (encodeSearchText === '') {
+
+        toastr["error"]("Make sure you have provided the fields in the form! ", "Error!")
+
+        toastr.options = {
+            "debug": false,
+            "newestOnTop": false,
+            "positionClass": "toast-bottom-right",
+            "closeButton": true,
+            "progressBar": true
+        }
+
+    } else {
+
+        // /rest/api/searchVoters/{searchText}
+        var html = '';
+        var url = '/rest/api/searchVoters/' + encodeSearchText;
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: param = "",
+            dataType: 'json',
+            success: function (data, status) {
+                if (data.length === 0) {
+                    toastr["warning"]("No record found matcing your search text! ", "Info!")
+
+                    toastr.options = {
+                        "debug": false,
+                        "newestOnTop": false,
+                        "positionClass": "toast-bottom-right",
+                        "closeButton": true,
+                        "progressBar": true
+                    }
+                } else {
+                    $.each(data, function (index, item) {
+
+                        html += '<div class="col-md-4">';
+                        html += '       <div class="panel panel-filled ">';
+                        html += '           <div class="panel-body">';
+                        html += '                <div class="btn-group pull-right m-b-md">';
+                        html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#editModal" onclick="loadSelectedItemInfo(' + unescape(item.id) + ');">Edit</button>';
+                        html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#deleteModal" onclick="setSelectedItemId(' + unescape(item.id) + ');">Delete</button>';
+                        html += '               </div>';
+                        html += '               <img alt="image" class="img-rounded image-lg" src="images/branch.png">';
+                        html += '                <h5 class="m-b-none"><a href="#"> ' + unescape(item.fullnames) + ' </a></h5>';
+                        html += '                     <br>';
+                        html += '                <p>';
+                        html += '                     National Id: ' + unescape(item.nationalId);
+                        html += '                </p>'
+                        html += '           </div>';
+                        html += '       </div>';
+                        html += '   </div>';
+                    });
+                    $('#votersHolderId').html(html);
+                }
+            },
+            error: function (data, status) {
+                if (data.status === 400) {
+                    toastr["error"]("No voter found matching that name! ", "Error!")
+
+                    toastr.options = {
+                        "debug": false,
+                        "newestOnTop": false,
+                        "positionClass": "toast-bottom-right",
+                        "closeButton": true,
+                        "progressBar": true
+                    }
+                } else {
+                    toastr["error"]("No voter found matching that name! ", "Error!")
+
+                    toastr.options = {
+                        "debug": false,
+                        "newestOnTop": false,
+                        "positionClass": "toast-bottom-right",
+                        "closeButton": true,
+                        "progressBar": true
+                    }
+                }
+            }
+        });
+    }
 }

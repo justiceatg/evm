@@ -133,4 +133,18 @@ public class ConstituencyJpaController extends BaseJPA {
         }
     }
 
+    public List<Constituency> findConstituenciesByName(String searchText) {
+        EntityManager em = getEntityManager();
+        try {
+            Query q = em.createQuery("select object(o) from Constituency as o where o.name like :searchText");
+            q.setParameter("searchText", "%" + searchText + "%");
+            return q.getResultList();
+        } catch (Exception ex) {
+            System.out.println(ex.getLocalizedMessage());
+            return null;
+        } finally {
+            em.close();
+        }
+    }
+
 }

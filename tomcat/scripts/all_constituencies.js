@@ -1,5 +1,7 @@
 var sessionId;
 var sessionDataObject;
+var index = 0;
+var max = 6;
 
 function initForm() {
     if (sessionStorage.length > 0) {
@@ -14,9 +16,95 @@ function initForm() {
 
     if (sessionId != null) {
         loadLoggedInUser();
-        loadConstituencies(100, 0);
+        loadConstituencies(max, index);
     }
     ;
+}
+
+function next() {
+    index = index + max;
+    var html = '';
+    // /getAllConstituencies/{session}/{max}/{index}
+    var url = '/rest/api/getAllConstituencies/' + sessionId + '/' + max + '/' + index;
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: param = "",
+        dataType: 'json',
+        success: function (data, status) {
+            if (data.length === 0) {
+                toastr["warning"]("Reached the end of the list! ", "Info!")
+
+                toastr.options = {
+                    "debug": false,
+                    "newestOnTop": false,
+                    "positionClass": "toast-bottom-right",
+                    "closeButton": true,
+                    "progressBar": true
+                }
+            } else {
+                $.each(data, function (index, item) {
+                    html += '<div class="col-md-4">';
+                    html += '       <div class="panel panel-filled ">';
+                    html += '           <div class="panel-body">';
+                    html += '                <div class="btn-group pull-right m-b-md">';
+                    html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#editModal" onclick="loadSelectedItemInfo(' + unescape(item.id) + ');">Edit</button>';
+                    html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#deleteModal" onclick="setSelectedItemId(' + unescape(item.id) + ');">Delete</button>';
+                    html += '               </div>';
+                    html += '               <img alt="image" class="img-rounded image-lg" src="images/branch.png">';
+                    html += '                <h5 class="m-b-none"><a href="#"> ' + unescape(item.name) + ' </a></h5>';
+                    html += '                     <br>';
+                    html += '                <p>';
+                    html += '                     Constituency Type: ' + unescape(item.constituencyType);
+                    html += '                </p>'
+                    html += '           </div>';
+                    html += '       </div>';
+                    html += '   </div>';
+                });
+                $('#constituenciesHolderId').html(html);
+            }
+        },
+        error: function (data, status) {
+            if (data.status === 400) {
+                toastr["error"]("Unable to load the constituecy list! ", "Error!")
+
+                toastr.options = {
+                    "debug": false,
+                    "newestOnTop": false,
+                    "positionClass": "toast-bottom-right",
+                    "closeButton": true,
+                    "progressBar": true
+                }
+            } else {
+                toastr["error"]("Unable to load the constituecy list! ", "Error!")
+
+                toastr.options = {
+                    "debug": false,
+                    "newestOnTop": false,
+                    "positionClass": "toast-bottom-right",
+                    "closeButton": true,
+                    "progressBar": true
+                }
+            }
+        }
+    });
+}
+
+function previous() {
+    index = index - max;
+    if (index < 0) {
+        toastr["warning"]("Reached the beginning of the list! ", "Info!")
+
+        toastr.options = {
+            "debug": false,
+            "newestOnTop": false,
+            "positionClass": "toast-bottom-right",
+            "closeButton": true,
+            "progressBar": true
+        }
+    } else {
+        loadConstituencies(max, index);
+    }
 }
 
 function loadConstituencies(max, index) {
@@ -53,7 +141,7 @@ function loadConstituencies(max, index) {
         },
         error: function (data, status) {
             if (data.data.status === 400) {
-                toastr["error"]("Unable to load the service list! ", "Error!")
+                toastr["error"]("Unable to load the constituecy list! ", "Error!")
 
                 toastr.options = {
                     "debug": false,
@@ -63,7 +151,7 @@ function loadConstituencies(max, index) {
                     "progressBar": true
                 }
             } else {
-                toastr["error"]("Unable to load the service list! ", "Error!")
+                toastr["error"]("Unable to load the constituecy list! ", "Error!")
 
                 toastr.options = {
                     "debug": false,
@@ -122,7 +210,7 @@ function loadSelectedItemInfo(itemId) {
         },
         error: function (data, status) {
             if (data.status === 400) {
-                toastr["error"]("Unable to load service details! ", "Error!")
+                toastr["error"]("Unable to load constituecy details! ", "Error!")
 
                 toastr.options = {
                     "debug": false,
@@ -132,7 +220,7 @@ function loadSelectedItemInfo(itemId) {
                     "progressBar": true
                 }
             } else {
-                toastr["error"]("Unable to load service details! ", "Error!")
+                toastr["error"]("Unable to load constituecy details! ", "Error!")
 
                 toastr.options = {
                     "debug": false,
@@ -277,4 +365,92 @@ function deleteSelectedItem() {
             }
         }
     });
+}
+
+function searchFunction() {
+    var searchText = document.getElementById("searchText").value;
+
+    var encodeSearchText = encodeURIComponent(searchText);
+
+    if (encodeSearchText === '') {
+
+        toastr["error"]("Make sure you have provided the fields in the form! ", "Error!")
+
+        toastr.options = {
+            "debug": false,
+            "newestOnTop": false,
+            "positionClass": "toast-bottom-right",
+            "closeButton": true,
+            "progressBar": true
+        }
+
+    } else {
+
+        // /rest/api/searchConstituencies/{searchText}
+        var html = '';
+        var url = '/rest/api/searchConstituencies/' + encodeSearchText;
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: param = "",
+            dataType: 'json',
+            success: function (data, status) {
+                if (data.length === 0) {
+                    toastr["warning"]("No record found matcing your search text! ", "Info!")
+
+                    toastr.options = {
+                        "debug": false,
+                        "newestOnTop": false,
+                        "positionClass": "toast-bottom-right",
+                        "closeButton": true,
+                        "progressBar": true
+                    }
+                } else {
+                    $.each(data, function (index, item) {
+
+                        html += '<div class="col-md-4">';
+                        html += '       <div class="panel panel-filled ">';
+                        html += '           <div class="panel-body">';
+                        html += '                <div class="btn-group pull-right m-b-md">';
+                        html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#editModal" onclick="loadSelectedItemInfo(' + unescape(item.id) + ');">Edit</button>';
+                        html += '                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#deleteModal" onclick="setSelectedItemId(' + unescape(item.id) + ');">Delete</button>';
+                        html += '               </div>';
+                        html += '               <img alt="image" class="img-rounded image-lg" src="images/branch.png">';
+                        html += '                <h5 class="m-b-none"><a href="#"> ' + unescape(item.name) + ' </a></h5>';
+                        html += '                     <br>';
+                        html += '                <p>';
+                        html += '                     Constituency Type: ' + unescape(item.constituencyType);
+                        html += '                </p>'
+                        html += '           </div>';
+                        html += '       </div>';
+                        html += '   </div>';
+                    });
+                    $('#constituenciesHolderId').html(html);
+                }
+            },
+            error: function (data, status) {
+                if (data.status === 400) {
+                    toastr["error"]("No constituecy found matching that name! ", "Error!")
+
+                    toastr.options = {
+                        "debug": false,
+                        "newestOnTop": false,
+                        "positionClass": "toast-bottom-right",
+                        "closeButton": true,
+                        "progressBar": true
+                    }
+                } else {
+                    toastr["error"]("No constituecy found matching that name! ", "Error!")
+
+                    toastr.options = {
+                        "debug": false,
+                        "newestOnTop": false,
+                        "positionClass": "toast-bottom-right",
+                        "closeButton": true,
+                        "progressBar": true
+                    }
+                }
+            }
+        });
+    }
 }
